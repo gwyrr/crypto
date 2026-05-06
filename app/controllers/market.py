@@ -1,6 +1,6 @@
 # CONTROLADOR DE MERCADO
 # Este modulo gestiona las consultas de datos externos en tiempo real.
-# Provee precios actuales y listas de tendencias de criptomonedas.
+# Provee precios actuales, listas de tendencias y datos OHLC para graficas candlestick.
 
 from fastapi import APIRouter, HTTPException, Query
 
@@ -43,4 +43,26 @@ def get_top_cryptocurrencies(
     return market_service.get_top_cryptocurrencies(
         per_page=limit,
         vs_currency=vs_currency,
+    )
+
+
+@router.get("/ohlc/{coin_id}")
+def get_ohlc(
+    coin_id: str,
+    days: int = Query(default=7, ge=1, le=365, description="Numero de dias de historial"),
+    vs_currency: str = Query(default="usd"),
+):
+    """
+    ENDPOINT DE DATOS CANDLESTICK (OHLC)
+    Retorna datos Open/High/Low/Close para renderizar graficas de velas.
+    Compatible con el formato de TradingView Lightweight Charts.
+    - days=1  => velas de 30 minutos
+    - days=7  => velas de 4 horas
+    - days=30 => velas de 4 horas
+    - days=90+ => velas diarias
+    """
+    return market_service.get_ohlc_data(
+        coin_id=coin_id.lower(),
+        vs_currency=vs_currency,
+        days=days,
     )

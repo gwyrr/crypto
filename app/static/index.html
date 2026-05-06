@@ -5,33 +5,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crypto Portfolio Pro</title>
-    <!-- Fuentes externas e iconos -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- TradingView Lightweight Charts v4.2.1 (version fija para evitar breaking changes de v5) -->
+    <script src="https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <!-- Elementos Decorativos de Fondo (Blobs) -->
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
 
     <div id="app" class="glass-panel">
-        <!--
-             SECCION DE AUTENTICACION (LOGIN / REGISTRO)
-        -->
+
+        <!-- ==================== SECCION: LOGIN / REGISTRO ==================== -->
         <section id="auth-section" class="active">
             <div class="header-logo">
                 <div class="logo-icon">💸</div>
                 <h1>Crypto Portfolio</h1>
             </div>
 
-            <!-- Selector de pestanas -->
             <div class="tabs">
                 <button class="tab active" onclick="switchAuthTab('login')">Ingresar</button>
                 <button class="tab" onclick="switchAuthTab('register')">Registrarse</button>
             </div>
 
-            <!-- Formulario de Inicio de Sesion -->
             <form id="login-form" class="auth-form active" onsubmit="handleLogin(event)">
                 <div class="input-group">
                     <label>Usuario</label>
@@ -45,7 +42,6 @@
                 <p class="error-msg" id="login-error"></p>
             </form>
 
-            <!-- Formulario de Registro -->
             <form id="register-form" class="auth-form" onsubmit="handleRegister(event)">
                 <div class="input-group">
                     <label>Usuario</label>
@@ -64,103 +60,215 @@
             </form>
         </section>
 
-        <!--
-             SECCION DE DASHBOARD (PANEL PRINCIPAL)
-        -->
+        <!-- ==================== SECCION: DASHBOARD PRINCIPAL ==================== -->
         <section id="dashboard-section" class="hidden">
+
+            <!-- Barra de navegacion superior -->
             <nav class="dashboard-nav">
                 <div class="header-logo small">
                     <div class="logo-icon small">💎</div>
-                    <h2>Dashboard</h2>
+                    <h2>Crypto Portfolio</h2>
+                </div>
+                <!-- Tabs de navegacion entre vistas -->
+                <div class="nav-tabs">
+                    <button class="nav-tab active" id="tab-portfolio" onclick="switchDashboardView('portfolio')">
+                        Portafolio
+                    </button>
+                    <button class="nav-tab" id="tab-charts" onclick="switchDashboardView('charts')">
+                        Graficas
+                    </button>
                 </div>
                 <button class="btn logout-btn" onclick="handleLogout()">Salir</button>
             </nav>
 
-            <!-- Resumen Financiero Superior -->
-            <div class="portfolio-summary">
-                <div class="summary-card">
-                    <h3>Valor Actual Total</h3>
-                    <h2 id="total-value">$0.00</h2>
+            <!-- ===== VISTA: PORTAFOLIO ===== -->
+            <div id="view-portfolio">
+                <!-- Resumen Financiero -->
+                <div class="portfolio-summary">
+                    <div class="summary-card">
+                        <h3>Valor Actual Total</h3>
+                        <h2 id="total-value">$0.00</h2>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Total Invertido</h3>
+                        <h2 id="total-invested">$0.00</h2>
+                    </div>
+                    <div class="summary-card" id="total-pnl-card">
+                        <h3>Ganancia/Perdida Neta</h3>
+                        <h2 id="total-pnl">$0.00</h2>
+                    </div>
                 </div>
-                <div class="summary-card">
-                    <h3>Total Invertido</h3>
-                    <h2 id="total-invested">$0.00</h2>
-                </div>
-                <div class="summary-card" id="total-pnl-card">
-                    <h3>Ganancia/Perdida Neta</h3>
-                    <h2 id="total-pnl">$0.00</h2>
+
+                <!-- Tabla de Activos -->
+                <div class="dashboard-content">
+                    <div class="assets-list glass-card">
+                        <div class="card-header">
+                            <h3>Mis Activos</h3>
+                            <button class="btn icon-btn" onclick="openTransactionModal()">+ Nueva Tx</button>
+                        </div>
+                        <div class="table-container">
+                            <table id="assets-table">
+                                <thead>
+                                    <tr>
+                                        <th>Activo</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Actual</th>
+                                        <th>Valor Total</th>
+                                        <th>Rendimiento</th>
+                                        <th>Grafica</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="assets-tbody">
+                                    <!-- Se llena dinamicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Listado de Activos (Criptomonedas compradas) -->
-            <div class="dashboard-content">
-                <div class="assets-list glass-card">
-                    <div class="card-header">
-                        <h3>Mis Activos</h3>
-                        <button class="btn icon-btn" onclick="openTransactionModal()">+ Nueva Tx</button>
+            <!-- ===== VISTA: GRAFICAS CANDLESTICK ===== -->
+            <div id="view-charts" class="hidden">
+                <div class="chart-view-container">
+
+                    <!-- Panel de controles del chart -->
+                    <div class="chart-controls glass-card">
+                        <div class="chart-controls-row">
+                            <!-- Selector de criptomoneda -->
+                            <div class="chart-control-group">
+                                <label>Criptomoneda</label>
+                                <select id="chart-coin-select" onchange="loadCandlestickChart()">
+                                    <option value="bitcoin" data-symbol="BTC">Bitcoin (BTC)</option>
+                                    <option value="ethereum" data-symbol="ETH">Ethereum (ETH)</option>
+                                    <option value="solana" data-symbol="SOL">Solana (SOL)</option>
+                                    <option value="cardano" data-symbol="ADA">Cardano (ADA)</option>
+                                    <option value="ripple" data-symbol="XRP">Ripple (XRP)</option>
+                                    <option value="dogecoin" data-symbol="DOGE">Dogecoin (DOGE)</option>
+                                    <option value="polkadot" data-symbol="DOT">Polkadot (DOT)</option>
+                                    <option value="chainlink" data-symbol="LINK">Chainlink (LINK)</option>
+                                </select>
+                            </div>
+
+                            <!-- Selector de rango de tiempo -->
+                            <div class="chart-control-group">
+                                <label>Periodo</label>
+                                <div class="timeframe-btns">
+                                    <button class="tf-btn" onclick="setChartTimeframe(event, 1)">1D</button>
+                                    <button class="tf-btn active" onclick="setChartTimeframe(event, 7)">7D</button>
+                                    <button class="tf-btn" onclick="setChartTimeframe(event, 30)">1M</button>
+                                    <button class="tf-btn" onclick="setChartTimeframe(event, 90)">3M</button>
+                                    <button class="tf-btn" onclick="setChartTimeframe(event, 365)">1A</button>
+                                </div>
+                            </div>
+
+                            <!-- Info del precio actual -->
+                            <div class="chart-price-info" id="chart-price-info">
+                                <span class="chart-coin-label" id="chart-coin-label">BTC/USD</span>
+                                <span class="chart-current-price" id="chart-current-price">--</span>
+                                <span class="chart-price-change" id="chart-price-change"></span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="table-container">
-                        <table id="assets-table">
-                            <thead>
-                                <tr>
-                                    <th>Activo</th>
-                                    <th>Cantidad</th>
-                                    <th>Precio Actual</th>
-                                    <th>Valor Total</th>
-                                    <th>Rendimiento</th>
-                                </tr>
-                            </thead>
-                            <tbody id="assets-tbody">
-                                <!-- Se llena dinamicamente mediante app.js -->
-                            </tbody>
-                        </table>
+
+                    <!-- Contenedor del chart principal -->
+                    <div class="chart-main-container glass-card">
+                        <div id="chart-loading" class="chart-loading">
+                            <div class="spinner"></div>
+                            <p>Cargando datos de mercado...</p>
+                        </div>
+                        <div id="main-chart-container"></div>
                     </div>
+
+                    <!-- Stats de la vela seleccionada -->
+                    <div class="candle-stats glass-card" id="candle-stats">
+                        <div class="candle-stat">
+                            <span class="stat-label">Apertura</span>
+                            <span class="stat-value" id="stat-open">--</span>
+                        </div>
+                        <div class="candle-stat">
+                            <span class="stat-label">Maximo</span>
+                            <span class="stat-value positive" id="stat-high">--</span>
+                        </div>
+                        <div class="candle-stat">
+                            <span class="stat-label">Minimo</span>
+                            <span class="stat-value negative" id="stat-low">--</span>
+                        </div>
+                        <div class="candle-stat">
+                            <span class="stat-label">Cierre</span>
+                            <span class="stat-value" id="stat-close">--</span>
+                        </div>
+                    </div>
+
                 </div>
             </div>
+
         </section>
     </div>
 
-    <!-- 
-         VENTANA MODAL PARA NUEVAS TRANSACCIONES
-          -->
+    <!-- ==================== MODAL: NUEVA TRANSACCION ==================== -->
     <div id="tx-modal" class="modal hidden">
-        <div class="modal-content glass-panel">
+        <div class="modal-content modal-wide glass-panel">
             <span class="close-btn" onclick="closeTransactionModal()">&times;</span>
             <h2>Nueva Transaccion</h2>
-            <form id="tx-form" onsubmit="submitTransaction(event)">
-                <div class="input-group">
-                    <label>Tipo de Operacion</label>
-                    <select id="tx-type" required>
-                        <option value="buy">Comprar</option>
-                        <option value="sell">Vender</option>
-                    </select>
+
+            <div class="modal-layout">
+                <!-- Columna izquierda: Chart del activo seleccionado -->
+                <div class="modal-chart-col">
+                    <div class="modal-chart-header">
+                        <span id="modal-chart-label">Selecciona un activo</span>
+                        <div class="timeframe-btns small">
+                            <button class="tf-btn active" onclick="setModalTimeframe(event, 1)">1D</button>
+                            <button class="tf-btn" onclick="setModalTimeframe(event, 7)">7D</button>
+                            <button class="tf-btn" onclick="setModalTimeframe(event, 30)">1M</button>
+                        </div>
+                    </div>
+                    <div id="modal-chart-placeholder" class="modal-chart-placeholder">
+                        <p>Selecciona una criptomoneda para ver la grafica</p>
+                    </div>
+                    <div id="modal-chart-container" class="hidden"></div>
                 </div>
-                <div class="input-group">
-                    <label>Activo Cripto</label>
-                    <select id="tx-asset-id" required onchange="fetchAssetPrice()">
-                        <option value="">-- Seleccionar --</option>
-                    </select>
+
+                <!-- Columna derecha: Formulario -->
+                <div class="modal-form-col">
+                    <form id="tx-form" onsubmit="submitTransaction(event)">
+                        <div class="input-group">
+                            <label>Tipo de Operacion</label>
+                            <select id="tx-type" required>
+                                <option value="buy">🟢 Comprar</option>
+                                <option value="sell">🔴 Vender</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Activo Cripto</label>
+                            <select id="tx-asset-id" required onchange="fetchAssetPrice()">
+                                <option value="">-- Seleccionar --</option>
+                            </select>
+                        </div>
+                        <!-- Precio actual en tiempo real -->
+                        <div class="price-badge-container">
+                            <small id="current-price-display" style="display: none;"></small>
+                        </div>
+                        <div class="input-group">
+                            <label>Cantidad</label>
+                            <input type="number" step="0.000001" id="tx-amount" placeholder="0.00000" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Precio de Ejecucion ($)</label>
+                            <input type="number" step="0.01" id="tx-price" placeholder="0.00" required>
+                        </div>
+                        <!-- Preview del total -->
+                        <div class="tx-total-preview" id="tx-total-preview" style="display:none;">
+                            <span>Total estimado:</span>
+                            <strong id="tx-total-value">$0.00</strong>
+                        </div>
+                        <button type="submit" class="btn primary-btn w-100">Guardar Transaccion</button>
+                        <p class="error-msg" id="tx-error"></p>
+                    </form>
                 </div>
-                <!-- Muestra el precio actual obtenido de la API -->
-                <div class="input-group" style="margin-top: -10px; margin-bottom: 15px;">
-                    <small id="current-price-display"
-                        style="color: var(--primary-color); display: none; font-weight: 500;"></small>
-                </div>
-                <div class="input-group">
-                    <label>Cantidad</label>
-                    <input type="number" step="0.000001" id="tx-amount" required>
-                </div>
-                <div class="input-group">
-                    <label>Precio de Ejecucion ($)</label>
-                    <input type="number" step="0.01" id="tx-price" required>
-                </div>
-                <button type="submit" class="btn primary-btn w-100">Guardar Transaccion</button>
-                <p class="error-msg" id="tx-error"></p>
-            </form>
+            </div>
         </div>
     </div>
 
-    <!-- Logica de la aplicacion -->
     <script src="app.js"></script>
 </body>
 
