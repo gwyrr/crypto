@@ -116,3 +116,35 @@ def delete_transaction(
         user_id=current_user.id,
     )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get("/stats/popular")
+def get_popular_assets(db: Session = Depends(get_db)):
+    """
+    CONSULTA ÚTIL (JOIN + GROUP BY):
+    Obtiene el ranking de los activos más populares basándose en el volumen total
+    invertido y la cantidad total de transacciones registradas.
+    """
+    from sqlalchemy import func
+    from app.models.asset import Asset
+    from app.models.transaction import Transaction
+
+    results = db.query(
+        Asset.symbol,
+        Asset.name,
+        func.count(Transaction.id).label("total_transactions"),
+        func.sum(Transaction.amount * Transaction.buy_price).label("total_volume")
+    ).join(Transaction, Transaction.asset_id == Asset.id)\
+     .group_by(Asset.id)\
+     .order_by(func.count(Transaction.id).desc())\
+     .all()
+     
+    return [
+        {
+            "symbol": r.symbol,
+            "name": r.name,
+            "total_transactions": r.total_transactions,
+            "total_volume": round(r.total_volume, 2) if r.total_volume else 0.0
+        } for r in results
+    ]
+

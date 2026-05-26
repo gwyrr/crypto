@@ -15,13 +15,13 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     
     # Nombre de usuario unico (se usa para el login)
-    username = Column(String, unique=True, index=True, nullable=False)
+    username = Column(String(150), unique=True, index=True, nullable=False)
     
     # Correo electronico unico (se usa para contacto o recuperacion)
-    email = Column(String, unique=True, index=True, nullable=False)
+    email = Column(String(150), unique=True, index=True, nullable=False)
     
     # Contrasena cifrada (nunca se guarda en texto plano)
-    hashed_password = Column(String, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
 
     # Relacion: Un usuario puede tener muchisimas transacciones a lo largo del tiempo
     transactions = relationship("Transaction", back_populates="owner")

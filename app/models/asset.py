@@ -16,13 +16,13 @@ class Asset(Base):
     id = Column(Integer, primary_key=True, index=True)
     
     # Nombre descriptivo (ej: Bitcoin)
-    name = Column(String, nullable=False)
+    name = Column(String(100), nullable=False)
     
     # Simbolo o Ticker (ej: BTC)
-    symbol = Column(String, nullable=False, unique=True)
+    symbol = Column(String(20), nullable=False, unique=True)
     
     # Columna discriminadora para la herencia (identifica si es crypto, asset, etc)
-    type = Column(String, nullable=False)
+    type = Column(String(50), nullable=False)
 
     # Relacion: Un activo puede estar presente en multiples transacciones
     transactions = relationship("Transaction", back_populates="asset")
@@ -56,7 +56,7 @@ class Cryptocurrency(Asset):
     id = Column(Integer, ForeignKey("assets.id"), primary_key=True)
     
     # ID especifico de la API (ej: 'bitcoin' para CoinGecko)
-    api_id = Column(String)
+    api_id = Column(String(100))
 
     # Identidad polimorfica especifica
     __mapper_args__ = {

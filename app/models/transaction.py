@@ -24,7 +24,7 @@ class Transaction(Base):
     asset_id = Column(Integer, ForeignKey("assets.id"))
     
     # Tipo de operacion: 'buy' (compra) o 'sell' (venta)
-    type = Column(String, nullable=False, default="buy")
+    type = Column(String(10), nullable=False, default="buy")
 
     # Cantidad de unidades operadas (ej: 0.5 BTC)
     amount = Column(Float, nullable=False)

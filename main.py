@@ -1,7 +1,6 @@
 # Este archivo es el corazon de la aplicacion FastAPI.
 # Aqui se inicializa la base de datos, se configuran las rutas (controladores)
 # y se levanta el servidor web junto con los archivos estaticos (frontend).
-
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
