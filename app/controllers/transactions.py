@@ -121,8 +121,8 @@ def delete_transaction(
 @router.get("/stats/popular")
 def get_popular_assets(db: Session = Depends(get_db)):
     """
-    CONSULTA ÚTIL (JOIN + GROUP BY):
-    Obtiene el ranking de los activos más populares basándose en el volumen total
+    CONSULTA UTIL (JOIN + GROUP BY):
+    Obtiene el ranking de los activos mas populares basandose en el volumen total
     invertido y la cantidad total de transacciones registradas.
     """
     from sqlalchemy import func

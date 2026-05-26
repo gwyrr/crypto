@@ -43,7 +43,7 @@ class AuthSecurityTests(unittest.TestCase):
         self.engine.dispose()
 
     def _create_user(self, username: str, email: str, password: str = "admin123") -> User:
-        """Metodo auxiliar para crear usuarios con contraseñas hasheadas."""
+        """Metodo auxiliar para crear usuarios con contrasenas hasheadas."""
         user = User(
             username=username,
             email=email,
@@ -77,7 +77,7 @@ class AuthSecurityTests(unittest.TestCase):
 
     def test_authenticate_user_accepts_valid_credentials(self):
         """
-        Verifica que el servicio de autenticacion acepte un usuario y contraseña correctos.
+        Verifica que el servicio de autenticacion acepte un usuario y contrasena correctos.
         """
         user = self._create_user("joa", "joa@gmail.com")
 
@@ -121,7 +121,7 @@ class AuthSecurityTests(unittest.TestCase):
         bitcoin = self._create_crypto("Bitcoin", "BTC", "bitcoin")
         transaction = self._create_transaction(user_id=owner.id, asset_id=bitcoin.id)
 
-        # La transacción es de 'joa', pero 'ana' intenta verla
+        # La transaccion es de 'joa', pero 'ana' intenta verla
         with self.assertRaises(HTTPException) as context:
             get_transaction(db=self.db, transaction_id=transaction.id, user_id=intruder.id)
 

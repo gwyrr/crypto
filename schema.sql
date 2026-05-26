@@ -1,5 +1,5 @@
--- SCRIPT SQL: Creación de base de datos y tablas para MySQL
--- Proyecto: Crypto Portfolio API (Programación V)
+-- SCRIPT SQL: Creacion de base de datos y tablas para MySQL
+-- Proyecto: Crypto Portfolio API (Programacion V)
 
 CREATE DATABASE IF NOT EXISTS crypto_portfolio;
 USE crypto_portfolio;
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     hashed_password VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 2. Tabla Base de Activos (Para herencia polimórfica)
+-- 2. Tabla Base de Activos (Para herencia polimorfica)
 CREATE TABLE IF NOT EXISTS assets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
